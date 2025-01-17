@@ -64,7 +64,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server Listening on port ${PORT}`);
-});
+// Conditional check for local development
+if (process.env.NODE_ENV === "local") {
+  const port = process.env.PORT || 5000;
+  app.listen(port, () => console.log(`Server Listening on port ${port}`));
+}
+
+module.exports = app;
