@@ -9,7 +9,7 @@ require("dotenv").config();
 app.use(
   cors({
     origin: [process.env.ALLOWED_ORIGIN + ""],
-    methods: ["POST"],
+    methods: ["POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
