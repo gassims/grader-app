@@ -6,7 +6,13 @@ const sanitize = require("sanitize-html");
 const emailValidator = require("email-validator");
 require("dotenv").config();
 
-app.use(cors({ origin: process.env.ALLOWED_ORIGIN + "" }));
+app.use(
+  cors({
+    origin: [process.env.ALLOWED_ORIGIN + ""],
+    methods: ["POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
