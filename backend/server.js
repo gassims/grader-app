@@ -6,22 +6,60 @@ const sanitize = require("sanitize-html");
 const emailValidator = require("email-validator");
 require("dotenv").config();
 
+// Logging middleware for debugging
+app.use((req, res, next) => {
+  console.log("Incoming Request:", {
+    method: req.method,
+    path: req.path,
+    headers: req.headers,
+    body: req.body,
+  });
+  next();
+});
+
+// Enhanced CORS configuration
 app.use(
   cors({
-    origin: [process.env.ALLOWED_ORIGIN + ""],
-    methods: ["POST", "OPTIONS"],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      const allowedOrigin = process.env.ALLOWED_ORIGIN;
+
+      // Check if the origin matches the allowed origin
+      if (origin === allowedOrigin || origin.startsWith(allowedOrigin)) {
+        return callback(null, true);
+      }
+
+      console.log("Rejected Origin:", origin);
+      console.log("Allowed Origin:", allowedOrigin);
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    methods: ["POST", "GET", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// Specific route handler with detailed logging
 app.post("/api/form-submit", async (req, res) => {
+  console.log("Form Submit Endpoint Reached");
+  console.log("Request Body:", req.body);
+
   const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required." });
+  }
 
   if (!emailValidator.validate(email)) {
     return res.status(400).json({ error: "Invalid email address." });
   }
+
   const sanitizedEmail = sanitize(email);
 
   const raw = JSON.stringify({
@@ -30,6 +68,10 @@ app.post("/api/form-submit", async (req, res) => {
 
   try {
     const externalApiUrl = process.env.EXTERNAL_API_URL;
+
+    console.log("External API URL:", externalApiUrl);
+    console.log("Payload:", raw);
+
     const externalApiResponse = await fetch(externalApiUrl, {
       method: "POST",
       headers: {
@@ -46,18 +88,34 @@ app.post("/api/form-submit", async (req, res) => {
 
     const externalApiData = await externalApiResponse.json();
 
-    res.json({
+    res.status(200).json({
       message: "Email submitted successfully!",
       externalApiResponse: externalApiData,
     });
   } catch (error) {
-    console.error("Error:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing the request." });
+    console.error("Detailed Error:", error);
+    res.status(500).json({
+      error: "An error occurred while processing the request.",
+      details: error.message,
+    });
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server Listening on port 5000");
+// Optional: Add a simple GET route to verify server is working
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Server is running" });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error("Unhandled Error:", err);
+  res.status(500).json({
+    error: "An unexpected error occurred",
+    details: err.message,
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server Listening on port ${PORT}`);
 });
