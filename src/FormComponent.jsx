@@ -23,19 +23,27 @@ const FormComponent = () => {
 
     try {
       setApiResponse(null);
-      const response = await fetch(
-        process.env.REACT_APP_API_URL + "/api/form-submit",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const fullUrl = `${process.env.REACT_APP_API_URL}/api/form-submit`;
+
+      console.log("Fetching URL:", fullUrl); // Debug logging
+
+      const response = await fetch(fullUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        // Log the error response body for more details
+        const errorBody = await response.text();
+        console.error("Error response body:", errorBody);
+        throw new Error(
+          `HTTP error! status: ${response.status}, body: ${errorBody}`
+        );
       }
+
       const data = await response.json();
       setApiResponse(data);
     } catch (error) {
