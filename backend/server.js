@@ -1,9 +1,8 @@
 const express = require("express");
 const cors = require("cors");
-const app = express();
 const bodyParser = require("body-parser");
-const sanitize = require("sanitize-html");
-const emailValidator = require("email-validator");
+const apiRouter = require("./api/form-submit.js");
+const app = express();
 require("dotenv").config();
 
 // Logging middleware for debugging
@@ -49,62 +48,7 @@ app.use(
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
-// Specific route handler with detailed logging
-app.post("/api/form-submit", async (req, res) => {
-  console.log("Form Submit Endpoint Reached");
-  console.log("Request Body:", req.body);
-
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ error: "Email is required." });
-  }
-
-  if (!emailValidator.validate(email)) {
-    return res.status(400).json({ error: "Invalid email address." });
-  }
-
-  const sanitizedEmail = sanitize(email);
-
-  const raw = JSON.stringify({
-    email: `${sanitizedEmail}`,
-  });
-
-  try {
-    const externalApiUrl = process.env.EXTERNAL_API_URL;
-
-    console.log("External API URL:", externalApiUrl);
-    console.log("Payload:", raw);
-
-    const externalApiResponse = await fetch(externalApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: raw,
-    });
-
-    if (!externalApiResponse.ok) {
-      throw new Error(
-        `External API request failed: ${externalApiResponse.status}`
-      );
-    }
-
-    const externalApiData = await externalApiResponse.json();
-
-    res.status(200).json({
-      message: "Email submitted successfully!",
-      externalApiResponse: externalApiData,
-    });
-  } catch (error) {
-    console.error("Detailed Error:", error);
-    res.status(500).json({
-      error: "An error occurred while processing the request.",
-      details: error.message,
-    });
-  }
-});
+app.use("/api", apiRouter);
 
 // Optional: Add a simple GET route to verify server is working
 app.get("/", (req, res) => {
