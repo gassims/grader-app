@@ -17,6 +17,10 @@ app.use((req, res, next) => {
   next();
 });
 
+const whitelist = process.env.WHITELIST_ORIGINS
+  ? process.env.WHITELIST_ORIGINS.split(",")
+  : [];
+
 // Enhanced CORS configuration
 app.use(
   cors({
@@ -24,15 +28,16 @@ app.use(
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
-      const allowedOrigin = process.env.ALLOWED_ORIGIN;
-
       // Check if the origin matches the allowed origin
-      if (origin === allowedOrigin || origin.startsWith(allowedOrigin)) {
+      if (
+        whitelist.indexOf(origin) !== -1 ||
+        whitelist.some((allowedOrigin) => origin.startsWith(allowedOrigin))
+      ) {
         return callback(null, true);
       }
 
       console.log("Rejected Origin:", origin);
-      console.log("Allowed Origin:", allowedOrigin);
+      console.log("Allowed Origin:", whitelist);
 
       return callback(new Error("Not allowed by CORS"));
     },
