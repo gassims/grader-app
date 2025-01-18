@@ -2,13 +2,15 @@
   "name": "grader-app",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5000",
   "dependencies": {
+    "@vercel/functions": "^1.5.2",
     "cra-template": "1.2.0",
     "email-validator": "^2.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "sanitize-html": "^2.14.0",
+    "vercel": "^39.3.0"
   },
   "scripts": {
     "start": "react-scripts start",

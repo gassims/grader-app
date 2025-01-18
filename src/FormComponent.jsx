@@ -23,8 +23,7 @@ const FormComponent = () => {
 
     try {
       setApiResponse(null);
-      const response = await fetch(
-        process.env.REACT_APP_API_URL + "/api/form-submit",
+      const response = await fetch('/api/form-submit',
         {
           method: "POST",
           headers: {
