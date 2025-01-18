@@ -1,7 +1,6 @@
 import {getEnv} from '@vercel/functions';
 import sanitize from "sanitize-html";
 import emailValidator from 'email-validator';
-import {context} from 'vercel';
 
 export function GET(request) {
   return new Response(JSON.stringfy({message:'Please use the submit form!'}),{status:500,headers:{'Content-Type':'application/json'}});
@@ -22,7 +21,6 @@ export async function POST(request) {
         whitelist.some((allowedOrigin) => origin.startsWith(allowedOrigin))) &&
         origin
       ) {
-        context.setResponseTimeout(600000);
   if (!emailValidator.validate(email)) {
     return new Response(JSON.stringfy({message:{'Invalid email address:':email}}),{ status: 400, header: {'Content-type':'application/json'}});
   }
