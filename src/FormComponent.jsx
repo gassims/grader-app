@@ -1,7 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback} from "react";
 import emailValidator from "email-validator";
+import {data} from "./data"
+
 
 const FormComponent = () => {
+  
+const assignmentExists = useCallback((course, assignment) => {
+    return data[course]?.includes(assignment) || false;},[]);
+
+  const [course, setCourse] = useState(null);
+  const [assignment, setAssignment] = useState(null)
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const courseParam = searchParams.get('course');
+    const assignmentParam = searchParams.get('assignment');
+    if(assignmentExists(courseParam,assignmentParam)) { setCourse(courseParam); setAssignment(assignmentParam);}
+  },[assignmentExists]);
+
   const [formData, setFormData] = useState({
     email: "",
   });
@@ -17,7 +32,7 @@ const FormComponent = () => {
     console.log(formData.email);
     const email = formData.email;
     if (!emailValidator.validate(email)) {
-      setApiResponse("Invalid email address. (jsx)");
+      setApiResponse("Invalid email address.");
       return;
     }
 
@@ -29,7 +44,7 @@ const FormComponent = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email, course, assignment }),
         }
       );
       if (!response.ok) {
@@ -45,7 +60,7 @@ const FormComponent = () => {
 
   return (
     <div>
-      <h2>Request Grade</h2>
+      {(assignmentExists(course,assignment)) ?
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email">Email:</label>
@@ -58,8 +73,7 @@ const FormComponent = () => {
           />
         </div>
         <button type="submit">Request</button>
-      </form>
-
+      </form> : (<div><h3>Welcome!</h3><p>This app is only meant to be used within the courses.</p><h3>Thank you!</h3></div>) }
       {apiResponse && (
         <div>
           <h3>Response:</h3>
@@ -74,7 +88,7 @@ const FormComponent = () => {
             </div>
           )}
         </div>
-      )}
+      )} 
     </div>
   );
 };
