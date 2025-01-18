@@ -1,6 +1,7 @@
-import {getEnv} from '@vercel/functions'
+import {getEnv} from '@vercel/functions';
 import sanitize from "sanitize-html";
-import emailValidator from 'email-validator'
+import emailValidator from 'email-validator';
+import {context} from 'vercel';
 
 export function GET(request) {
   return new Response(JSON.stringfy({message:'Please use the submit form!'}),{status:500,headers:{'Content-Type':'application/json'}});
@@ -8,6 +9,7 @@ export function GET(request) {
 
 
 export async function POST(request) {
+
   const {EXTERNAL_API_URL,WHITELIST_ORIGINS} = getEnv()
   const { email } = await request.json();
   const origin = request.headers.get('origin')
@@ -20,6 +22,7 @@ export async function POST(request) {
         whitelist.some((allowedOrigin) => origin.startsWith(allowedOrigin))) &&
         origin
       ) {
+        context.setResponseTimeout(600000);
   if (!emailValidator.validate(email)) {
     return new Response(JSON.stringfy({message:{'Invalid email address:':email}}),{ status: 400, header: {'Content-type':'application/json'}});
   }
@@ -48,11 +51,11 @@ try {
       externalApiResponse: externalApiData,
     }),{ status: 200, header: {'Content-type':'application/json'}});
   } catch (error) {
-    return new Response(JSON.stringify({message:`An error occurred while processing the request. ${error}`}),{ status: 500, header: {'Content-type':'application/json'}});
+    return new Response(JSON.stringify({message:`An error occurred while processing the request. ${error}`}),{ status: 402, header: {'Content-type':'application/json'}});
   }
 } else
       {
         console.log("Rejected Origin:", origin);
-        return new Response(JSON.stringify({message:"Please visit academy.dhis2.org for more info!"}),{status:500,headers:{'Content-Type':'application/json'}})
+        return new Response(JSON.stringify({message:"Please visit academy.dhis2.org for more info!"}),{status:401,headers:{'Content-Type':'application/json'}})
       }
 }
