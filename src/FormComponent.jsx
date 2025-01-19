@@ -10,11 +10,17 @@ const assignmentExists = useCallback((course, assignment) => {
 
   const [course, setCourse] = useState(null);
   const [assignment, setAssignment] = useState(null)
+  const [email,setEmail] =useState(null)
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const courseParam = searchParams.get('course');
     const assignmentParam = searchParams.get('assignment');
-    if(assignmentExists(courseParam,assignmentParam)) { setCourse(courseParam); setAssignment(assignmentParam);}
+    const emailParam = searchParams.get('email');
+    if(assignmentExists(courseParam,assignmentParam)) {
+      setCourse(courseParam);
+      setAssignment(assignmentParam);
+      setEmail(emailParam)
+    }
   },[assignmentExists]);
 
   const [formData, setFormData] = useState({
@@ -25,12 +31,12 @@ const assignmentExists = useCallback((course, assignment) => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setEmail(formData.email)
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData.email);
-    const email = formData.email;
+    console.log(email);
     if (!emailValidator.validate(email)) {
       setApiResponse("Invalid email address.");
       return;
@@ -63,6 +69,8 @@ const assignmentExists = useCallback((course, assignment) => {
       {(assignmentExists(course,assignment)) ?
       <form onSubmit={handleSubmit}>
         <div>
+          {!email &&
+          <>
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -71,8 +79,10 @@ const assignmentExists = useCallback((course, assignment) => {
             value={formData.email}
             onChange={handleChange}
           />
+          </>
+          }
         </div>
-        <button type="submit">Request</button>
+        <button type="submit">Grade Me!</button>
       </form> : (<div><h3>Welcome!</h3><p>This app is only meant to be used within the courses.</p><h3>Thank you!</h3></div>) }
       {apiResponse && (
         <div>
