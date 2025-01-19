@@ -45,14 +45,17 @@ const FormComponent = () => {
   });
 
   const handleChange = (e) => {
+    setEmail(e.target.value);
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setEmail(formData.email);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!emailValidator.validate(email)) {
+    if (
+      (!emailValidator.validate(email) && usingParams === false) ||
+      (!emailValidator.validate(formData.email) && usingParams === true)
+    ) {
       setInvalidEmail("Invalid email address.");
       return;
     } else {
