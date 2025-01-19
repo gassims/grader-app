@@ -7,7 +7,7 @@ export function GET(request) {
 
 
 export async function POST(request) {
-    
+
   const {EXTERNAL_API_URL,WHITELIST_ORIGINS} = getEnv()
   const { email,course,assignment } = await request.json();
   const origin = request.headers.get('origin')
