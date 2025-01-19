@@ -20,6 +20,7 @@ const FormComponent = () => {
   const [email, setEmail] = useState(null);
   const [invalidEmail, setInvalidEmail] = useState(null);
   const [apiResponse, setApiResponse] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -69,6 +70,7 @@ const FormComponent = () => {
           return;
         } else {
           const data = await response.json();
+          setSuccess(true);
           setApiResponse(data);
         }
       } catch (error) {
@@ -104,8 +106,9 @@ const FormComponent = () => {
           <h3>Thank you!</h3>
         </div>
       )}
-      {apiResponse && apiResponse.error && <p>{apiResponse.message}</p>}
-      {!invalidEmail && apiResponse ? (
+      {apiResponse && <p>{apiResponse.message}</p>}
+
+      {!invalidEmail && apiResponse && success !== false ? (
         apiResponse.results.length >= 0 ? (
           <TableContainer>
             <Table>
