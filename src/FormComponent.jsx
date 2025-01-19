@@ -44,7 +44,7 @@ const assignmentExists = useCallback((course, assignment) => {
 
     try {
       setApiResponse(null);
-      const response = await fetch('/api/form-submit',
+      const response = await fetch(`/api/${course}`,
         {
           method: "POST",
           headers: {
@@ -58,6 +58,7 @@ const assignmentExists = useCallback((course, assignment) => {
       }
       const data = await response.json();
       setApiResponse(data);
+      console.log(apiResponse.results)
     } catch (error) {
       console.error("Error submitting form: ", error);
       setApiResponse("An error occurred during submission.");
