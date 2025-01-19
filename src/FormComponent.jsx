@@ -22,6 +22,7 @@ const FormComponent = () => {
   const [apiResponse, setApiResponse] = useState(null);
   const [success, setSuccess] = useState(false);
   const [usingParams, setUsingParams] = useState();
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -61,6 +62,7 @@ const FormComponent = () => {
     } else {
       try {
         setApiResponse(null);
+        setSubmitting(true);
         const response = await fetch(`/api/${course}`, {
           method: "POST",
           headers: {
@@ -76,6 +78,7 @@ const FormComponent = () => {
             message:
               errorData?.errorMessage || "An error occurred on the server.",
           });
+          setSubmitting(false);
           console.log(errorData.errorMessage);
           return;
         } else {
@@ -84,6 +87,7 @@ const FormComponent = () => {
           setApiResponse(data);
         }
       } catch (error) {
+        setSubmitting(false);
         console.error("Error submitting form: ", apiResponse);
       }
     }
@@ -107,7 +111,10 @@ const FormComponent = () => {
               </>
             )}
           </div>
-          <button type="submit">Grade Me!</button>
+          {submitting === false && <button type="submit">Grade Me!</button>}
+          {submitting === true && apiResponse === null && (
+            <p>Submitting, please wait!</p>
+          )}
         </form>
       ) : (
         <div>
