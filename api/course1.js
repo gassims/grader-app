@@ -17,7 +17,7 @@ const origin = request.headers.get('origin')
 const whitelist = process.env.ORIGINS;
 console.log("recieved request: ", origin)
 // Check if the origin matches the allowed origin
-if (whitelist == origin) {
+if (whitelist == origin || origin == "http://localhost:3001") {
 try {
     //const externalApiUrl = process.env.externalApiUrl;
     const URL = process.env.COURSE1URL + `&username=${email}&assignment_id=${assignment}`;
@@ -29,7 +29,7 @@ try {
         "x-api-key": apiKey
       }
     });
-
+    
     return new Response(externalApiResponse.body,{
       status: externalApiResponse.status, 
       headers: externalApiResponse.headers 
