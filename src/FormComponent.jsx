@@ -21,6 +21,7 @@ const FormComponent = () => {
   const [invalidEmail, setInvalidEmail] = useState(null);
   const [apiResponse, setApiResponse] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [usingParams, setUsingParams] = useState();
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -32,6 +33,11 @@ const FormComponent = () => {
       setAssignment(assignmentParam);
       setEmail(emailParam);
     }
+    if (!emailParam) {
+      setUsingParams(true);
+    } else {
+      setUsingParams(false);
+    }
   }, [assignmentExists]);
 
   const [formData, setFormData] = useState({
@@ -40,11 +46,12 @@ const FormComponent = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setEmail(formData.email);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(email);
+
     if (!emailValidator.validate(email)) {
       setInvalidEmail("Invalid email address.");
       return;
@@ -84,7 +91,7 @@ const FormComponent = () => {
       {assignmentExists(course, assignment) ? (
         <form onSubmit={handleSubmit}>
           <div>
-            {!email && (
+            {usingParams && (
               <>
                 <label htmlFor="email">Email:</label>
                 <input
