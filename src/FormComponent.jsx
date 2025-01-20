@@ -7,6 +7,9 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Button,
+  Input,
+  Box,
 } from "@mui/material";
 import { data } from "./data";
 
@@ -84,6 +87,7 @@ const FormComponent = () => {
         } else {
           const data = await response.json();
           setSuccess(true);
+          setSubmitting(false);
           setApiResponse(data);
         }
       } catch (error) {
@@ -97,24 +101,27 @@ const FormComponent = () => {
     <div>
       {assignmentExists(course, assignment) ? (
         <form onSubmit={handleSubmit}>
-          <div>
+          <Box sx={{ "& > :not(style)": { m: 1, width: "25ch" } }}>
             {usingParams && (
               <>
-                <label htmlFor="email">Email:</label>
-                <input
+                <Input
                   type="email"
                   id="email"
                   name="email"
+                  margin="dense"
+                  fullWidth
+                  placeholder="Enter your email address"
                   value={formData.email}
                   onChange={handleChange}
                 />
               </>
             )}
-          </div>
-          {submitting === false && <button type="submit">Grade Me!</button>}
-          {submitting === true && apiResponse === null && (
-            <p>Submitting, please wait!</p>
-          )}
+            {
+              <Button loading={submitting} variant="contained" type="submit">
+                Grade Me!
+              </Button>
+            }
+          </Box>
         </form>
       ) : (
         <div>
