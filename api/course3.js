@@ -23,7 +23,7 @@ export async function POST(request) {
   const whitelist = process.env.ORIGINS;
   console.log("recieved request: ", origin);
   // Check if the origin matches the allowed origin
-  if (whitelist == origin) {
+  if (whitelist == origin || origin == "http://localhost:3001") {
     try {
       //const externalApiUrl = process.env.externalApiUrl;
       const URL = process.env.COURSE3URL + `&username=${email}`;

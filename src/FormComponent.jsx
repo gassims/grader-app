@@ -28,6 +28,28 @@ const FormComponent = () => {
   const [usingParams, setUsingParams] = useState();
   const [submitting, setSubmitting] = useState(false);
   const [language, setLanguage] = useState("en");
+  const [triaged, setTriaged] = useState(false);
+
+  async function support() {
+    setTriaged(true);
+    try {
+      const response = await fetch(`/api/triage`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, course, language }),
+      });
+      if (!response.ok) {
+        console.log("Issue creating support ticket");
+        return;
+      } else {
+        console.log("Support ticket created!");
+      }
+    } catch (error) {
+      console.log("Issue creating support ticket");
+    }
+  }
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -156,11 +178,12 @@ const FormComponent = () => {
               <Alert variant="outlined" severity="error">
                 It appears that there are a few tasks that require your
                 attention. Please review the feedback provided next to each
-                task. Once you’ve made the adjustments in the DHIS2 instance,
+                task. Once you've made the adjustments in the DHIS2 instance,
                 press the “Check my lab results” button again to reassess your
                 work.
               </Alert>
             )}
+            {triaged ? null : support()}
             <TableContainer>
               <Table>
                 <TableHead>
