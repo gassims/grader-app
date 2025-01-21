@@ -1,32 +1,24 @@
 import { getEnv } from "@vercel/functions";
 
-export function GET(request) {
-  return new Response(
-    JSON.stringfy({ message: "Please use the submit form!" }),
-    { status: 400, headers: { "Content-Type": "application/json" } }
-  );
-}
-
 export async function POST(request) {
-  const { EXTERNAL_API_UR, WHITELIST_ORIGINS } = getEnv();
-  const { email, course, assignment } = await request.json();
+  const { EXTERNAL_API_URL, WHITELIST_ORIGINS } = getEnv();
+  const { email, course, language } = await request.json();
   const origin = request.headers.get("origin");
   const whitelist = process.env.WHITELIST_ORIGINS
     ? process.env.WHITELIST_ORIGINS.split(",")
     : [];
   // Check if the origin matches the allowed origin
   if (
-    (whitelist.indexOf(origin) !== -1 ||
+    (origin == "http://localhost:3001" ||
+      whitelist.indexOf(origin) !== -1 ||
       whitelist.some((allowedOrigin) => origin.startsWith(allowedOrigin))) &&
     origin
   ) {
     const raw = JSON.stringify({
       email,
       course,
-      assignment,
+      language,
     });
-
-    //  return new Response(JSON.stringfy('Thanks!'),{status:200})
 
     try {
       const externalApiUrl = process.env.EXTERNAL_API_URL;
@@ -42,7 +34,7 @@ export async function POST(request) {
       console.log(externalApiData);
       return new Response(
         JSON.stringify({
-          message: "Email submitted successfully!",
+          message: "Triaged and created support ticket!",
           externalApiResponse: externalApiData,
         }),
         { status: 200, header: { "Content-type": "application/json" } }
