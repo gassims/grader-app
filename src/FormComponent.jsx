@@ -176,9 +176,17 @@ const FormComponent = () => {
                       <TableRow key={index}>
                         <TableCell>{result.resultName}</TableCell>
                         <TableCell>
-                          {result.grade === 1 ? "Pass" : "Fail"}
+                          {result.grade === 1
+                            ? "Pass"
+                            : result.reason === "Passed"
+                            ? "Pass"
+                            : "Fail"}
                         </TableCell>
-                        <TableCell>{result.reason}</TableCell>
+                        <TableCell>
+                          {result.reason === "Passed"
+                            ? result.resultName
+                            : result.reason}
+                        </TableCell>
                       </TableRow>
                     ))}
                 </TableBody>
