@@ -10,6 +10,7 @@ import {
   Button,
   Input,
   Box,
+  Alert,
 } from "@mui/material";
 import { data } from "./data";
 
@@ -26,12 +27,15 @@ const FormComponent = () => {
   const [success, setSuccess] = useState(false);
   const [usingParams, setUsingParams] = useState();
   const [submitting, setSubmitting] = useState(false);
+  const [language, setLanguage] = useState("en");
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const courseParam = searchParams.get("course");
     const assignmentParam = searchParams.get("assignment");
     const emailParam = searchParams.get("email");
+    const languageParam = searchParams.get("lang");
+    setLanguage(languageParam);
     if (assignmentExists(courseParam, assignmentParam)) {
       setCourse(courseParam);
       setAssignment(assignmentParam);
@@ -118,7 +122,11 @@ const FormComponent = () => {
             )}
             {
               <Button loading={submitting} variant="contained" type="submit">
-                Grade Me!
+                {language === "fr" //update variable //update Params
+                  ? "Vérifier mes exercices"
+                  : language === "es"
+                  ? "Verificar mis ejercicios"
+                  : "Check my lab results!"}
               </Button>
             }
           </Box>
@@ -130,31 +138,53 @@ const FormComponent = () => {
           <h3>Thank you!</h3>
         </div>
       )}
-      {apiResponse && <p>{apiResponse.message}</p>}
+      {apiResponse && apiResponse.error ? (
+        <Alert variant="outlined" severity="error">
+          {apiResponse.message}
+        </Alert>
+      ) : null}
 
       {!invalidEmail && apiResponse && success !== false ? (
         apiResponse.results.length >= 0 ? (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Assignment</TableCell>
-                  <TableCell>Grade</TableCell>
-                  <TableCell>Reason</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {apiResponse.results &&
-                  apiResponse.results.map((result, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{result.resultName}</TableCell>
-                      <TableCell>{result.grade}</TableCell>
-                      <TableCell>{result.reason}</TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <Box>
+            {apiResponse.finalGrade === 1 ? (
+              <Alert variant="outlined" severity="success" color="info">
+                Congratulations on successfully completing all the tasks in Lab{" "}
+                {assignment}! Excellent work!
+              </Alert>
+            ) : (
+              <Alert variant="outlined" severity="error">
+                It appears that there are a few tasks that require your
+                attention. Please review the feedback provided next to each
+                task. Once you’ve made the adjustments in the DHIS2 instance,
+                press the “Check my lab results” button again to reassess your
+                work.
+              </Alert>
+            )}
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Assignment</TableCell>
+                    <TableCell>Grade</TableCell>
+                    <TableCell>Reason</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {apiResponse.results &&
+                    apiResponse.results.map((result, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{result.resultName}</TableCell>
+                        <TableCell>
+                          {result.grade === 1 ? "Pass" : "Fail"}
+                        </TableCell>
+                        <TableCell>{result.reason}</TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
         ) : (
           <p>Loading results...</p> // Optional loading state
         )
